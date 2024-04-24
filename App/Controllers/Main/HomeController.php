@@ -5,8 +5,9 @@ class HomeController  extends Controller{
     public  function index() {
         // echo  "Hello World!";
         // echo $this->request->url();
-        $view = $this->view->render('main/home');
+        // $view = $this->view->render('main/home');
         // var_dump($view);
-        echo $view;
+        // echo $view;
+        // pre($this->db);
     }
 }
