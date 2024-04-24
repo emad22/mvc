@@ -27,6 +27,7 @@ class View implements ViewInterface {
     public function __construct( File $file, $viewPath , array $data) {
         $this->file = $file;
         $this->viewPath = $this->setViewPath($viewPath);
+        // pre ($this->viewPath);
         $this->data = $data;
     }
     /**
@@ -44,6 +45,7 @@ class View implements ViewInterface {
         if (!$this->viewFileExists($relativeViewPath)) {
             die('<b>' . $viewPath . ' View</b>' . ' does not exists in Views Folder');
         }
+        return $this->viewPath;
     }
     /**
      * Check if a given file exists in its location 
@@ -57,11 +59,10 @@ class View implements ViewInterface {
      * Get the view output
      */
     public function getOutput(){
-
-
+        // var_dump($this->viewPath);
         if (is_null($this->output)) {
             ob_start();
-            extract($this->data);
+            // extract($this->data);
             require $this->viewPath;
             $this->output = ob_get_clean();
         }

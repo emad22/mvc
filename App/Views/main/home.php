@@ -1,3 +1,1 @@
-<?php
-echo 'wellcome from View';
-?>
+<h1>Hello World!</h1> 

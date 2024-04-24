@@ -6,6 +6,7 @@ class HomeController  extends Controller{
         // echo  "Hello World!";
         // echo $this->request->url();
         $view = $this->view->render('main/home');
-        return $view;
+        // var_dump($view);
+        echo $view;
     }
 }
