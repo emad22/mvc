@@ -24,7 +24,20 @@ class HomeController  extends Controller{
         // var_dump($this->db);
         //    var_dump(  $this->db->select('first_name')->where("id = ?", 13)->fetch('users'));
         // var_dump($this->db->fetchAll('users'));
-        $this->db->where("id = ?", 13)->delete('users');
+        // $this->db->where("id = ?", 13)->delete('users');
+        /*
+        for that we use rest() function
+        */
+        // pre($this->db->where("id = ?", 1)->fetch('users'));
+        // pre($this->db->fetchAll('users'));
+        // pre($this->db->fetchAll('users'));
+        // pre($this->db->rowCount());
+
+        $users = $this->load->model( 'users');
+        // $new = $users->getUserById(1)->created;
+        // $new = date('Y-m-d', $new);
+        // pre($new);
+        pre($users->all());
 
     }
 }

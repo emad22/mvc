@@ -21,6 +21,7 @@ class Database{
 
     private $groupBy;
     private $ordersBy = [];
+    private $rows = 0;
 
     public  function __construct(Application $application){
         $this->app = $application;
@@ -119,6 +120,9 @@ class Database{
         $this->offset = $offset;
         return $this;
     }
+    public function rowCount(){
+        return $this->rows;
+    }
       
     public function lastID() {
         return $this->lastID;
@@ -154,11 +158,11 @@ class Database{
         $this->query($sql, $this->bindings);
         $this->lastID = $this->connection()->lastInsertId();
         // pre($this->lastID); die;
+        $this->reset();
         return $this;
         // echo  $sql."<br/>\n";
     }
-    public function update($table = null)
-    {
+    public function update($table = null){
 
         if ($table) {
             $this->table($table);
@@ -176,11 +180,10 @@ class Database{
         // die;
 
         $this->query($sql, $this->bindings);
-
+        $this->reset();
         return $this;
     }
-    public function delete($table = null)
-    {
+    public function delete($table = null){
 
         if ($table) {
             $this->table($table);
@@ -197,6 +200,7 @@ class Database{
         // var_dump($this->bindings);
         // die;
         $this->query($sql, $this->bindings);
+        $this->reset();
         return $this;
     }
     public function fetch($table = null){
@@ -210,6 +214,7 @@ class Database{
         // var_dump($sql);die;
         $stmt = $this->query($sql , $this->bindings);
         $res = $stmt->fetch();
+        $this->reset();
         return $res;
     }
     public function fetchAll($table = null)    {
@@ -223,6 +228,8 @@ class Database{
         // var_dump($sql);die;
         $stmt = $this->query($sql, $this->bindings);
         $ress = $stmt->fetchAll();
+        $this->rows = $stmt->rowCount();
+        $this->reset();
         return $ress;
     }
 
@@ -317,7 +324,20 @@ private function fetchStatments(){
         return  $sql;
 
     }
-
+    private function reset()
+    {
+        $this->limit = null;
+        $this->tableName = null;
+        $this->offset = null;
+        $this->data = [];
+        $this->joins = [];
+        $this->wheres = [];
+        $this->ordersBy = [];
+        $this->having = [];
+        $this->groupBy = [];
+        $this->selects = [];
+        $this->bindings = [];
+    }
 
 }
 
