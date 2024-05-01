@@ -86,28 +86,7 @@ class Database{
     /**
      * update data to the table
      */
-    public function update($table = null) {
-        
-        if ($table) {
-            $this->table($table);
-        }
-        $sql = 'UPDATE '. $this->tableName. ' SET ';
-
-        $sql .= $this->Setfields();
-
-        // var_dump($this->wheres);die;
-        if($this->wheres)    {
-            $sql .= ' WHERE ' . implode(' ', $this->wheres);
-        }
-        // var_dump( $sql );die;
-        // var_dump($this->bindings);
-        // die;
-        
-        $this->query($sql, $this->bindings);
-        
-        return $this;
-        
-    }
+    
 
     public function  where(){
         $args =  func_get_args();
@@ -120,8 +99,7 @@ class Database{
         $this->joins[] = $join;
         return $this;
     }
-    public function orderBy($orderBy, $sort = 'ASC')
-    {
+    public function orderBy($orderBy, $sort = 'ASC'){
         $this->ordersBy = [$orderBy, $sort];
 
         return $this;
@@ -145,8 +123,7 @@ class Database{
     public function lastID() {
         return $this->lastID;
     }
-    public function data($key, $value = null)
-    {
+    public function data($key, $value = null){
         if (is_array($key)) {
             // foreach($key as $k=>$v) {
             //     $this->data[$k] = $v;
@@ -180,13 +157,48 @@ class Database{
         return $this;
         // echo  $sql."<br/>\n";
     }
-    /**
-     * Fetch Table
-     * This will return only one record
-     *
-     * @param string $table
-     * @return \stdClass | null
-     */
+    public function update($table = null)
+    {
+
+        if ($table) {
+            $this->table($table);
+        }
+        $sql = 'UPDATE ' . $this->tableName . ' SET ';
+
+        $sql .= $this->Setfields();
+
+        // var_dump($this->wheres);die;
+        if ($this->wheres) {
+            $sql .= ' WHERE ' . implode(' ', $this->wheres);
+        }
+        // var_dump( $sql );die;
+        // var_dump($this->bindings);
+        // die;
+
+        $this->query($sql, $this->bindings);
+
+        return $this;
+    }
+    public function delete($table = null)
+    {
+
+        if ($table) {
+            $this->table($table);
+        }
+        $sql = 'DELETE FROM ' . $this->tableName ;
+
+        // $sql .= $this->Setfields();
+
+        // var_dump($this->wheres);die;
+        if ($this->wheres) {
+            $sql .= ' WHERE ' . implode(' ', $this->wheres);
+        }
+        // var_dump( $sql );die;
+        // var_dump($this->bindings);
+        // die;
+        $this->query($sql, $this->bindings);
+        return $this;
+    }
     public function fetch($table = null){
         if ($table) {
             $this->table($table);
@@ -197,8 +209,21 @@ class Database{
         // $sql .= ' FROM ' . $this->table . ' ';
         // var_dump($sql);die;
         $stmt = $this->query($sql , $this->bindings);
-        $res = $stmt->fetchAll();
+        $res = $stmt->fetch();
         return $res;
+    }
+    public function fetchAll($table = null)    {
+        if ($table) {
+            $this->table($table);
+        }
+        $sql = $this->fetchStatments();
+        // pre($sql);die;
+
+        // $sql .= ' FROM ' . $this->table . ' ';
+        // var_dump($sql);die;
+        $stmt = $this->query($sql, $this->bindings);
+        $ress = $stmt->fetchAll();
+        return $ress;
     }
 
 
@@ -219,7 +244,7 @@ private function fetchStatments(){
         if (!empty($this->groupBy)) {
             $sql .= " GROUP BY " . implode(",",$this->groupBy)." ";
         }
-        if (!is_null($this->having)) {
+        if ($this->having) {
             $sql .= " HAVING ".$this->having." ";
         }
         if (!empty($this->ordersBy)) {

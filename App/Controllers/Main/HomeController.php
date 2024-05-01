@@ -23,7 +23,8 @@ class HomeController  extends Controller{
         //    $this->db->query(' INSERT INTO users  SET email = ? , first_name =? ' , ['admin@gmail.com' ,  'Admin']);
         // var_dump($this->db);
         //    var_dump(  $this->db->select('first_name')->where("id = ?", 13)->fetch('users'));
-        var_dump($this->db->fetch('users'));
+        // var_dump($this->db->fetchAll('users'));
+        $this->db->where("id = ?", 13)->delete('users');
 
     }
 }
