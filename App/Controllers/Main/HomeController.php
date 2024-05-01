@@ -9,18 +9,21 @@ class HomeController  extends Controller{
         // var_dump($view);
         // echo $view;
         // pre($this->db);
-    //    echo $this->db->data(
-    //         [
-    //             'email' => 'admin@gmail.com',
-    //             'first_name' => 'Admin'
-    //         ]
-    //     )->update('users')->lastID();
+        //    echo $this->db->data(
+        //         [
+        //             'email' => 'admin@gmail.com',
+        //             'first_name' => 'Admin'
+        //         ]
+        //     )->update('users')->lastID();
         // $this->db->query(' SELECT first_name FROM users  WHERE id > ? ', [1]);
         // $this->db->query(' UPDATE users SET email = ?  WHERE id=? ', ['Alexander@gmail.com', '13']);
-        $this->db->data('email', 'alex@gmail.com')
-                 ->where("id = ?" , 13)
-                 ->update('users');
-    //    $this->db->query(' INSERT INTO users  SET email = ? , first_name =? ' , ['admin@gmail.com' ,  'Admin']);
+        // $this->db->data('email', 'alex@gmail.com')
+        //          ->where("id = ?" , 13)
+        //          ->update('users');
+        //    $this->db->query(' INSERT INTO users  SET email = ? , first_name =? ' , ['admin@gmail.com' ,  'Admin']);
+        // var_dump($this->db);
+        //    var_dump(  $this->db->select('first_name')->where("id = ?", 13)->fetch('users'));
+        var_dump($this->db->fetch('users'));
 
     }
 }

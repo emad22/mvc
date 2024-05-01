@@ -11,8 +11,20 @@ class Database{
     private $bindings =[];
     private $wheres = [];
     private $lastID ;
+    private $selects = [];
+    private $joins = [];
+    private $limit;
+    private $offset;
+
+    private $having =[];
+    
+
+    private $groupBy;
+    private $ordersBy = [];
+
     public  function __construct(Application $application){
         $this->app = $application;
+        // var_dump(!$this->isConnected());die;
         if( ! $this->isConnected() ){
             $this->connected();
         }
@@ -34,6 +46,7 @@ class Database{
      */
     private function connected(){
         $config = $this->app->file->call('Config.php');
+        // var_dump($config);die;
         extract($config);
         // exit;
         try {
@@ -69,41 +82,7 @@ class Database{
     public function from($tableName){
         return $this->tableName = $tableName;
     }
-
-    public function data($key, $value = null){
-        if(is_array($key)) {
-            // foreach($key as $k=>$v) {
-            //     $this->data[$k] = $v;
-            // }
-            $this->data =  array_merge($this->data, $key);
-            $this->BindData($key);
-        } else {
-            $this->data[$key] = $value;
-            $this->BindData($value);
-        }
-        return $this;
-    }
-
-    public  function insert($table = null){
-            if ($table) {
-                $this->table($table);
-            }
-            $sql = 'INSERT INTO ' .$this->tableName. ' SET ';
-            foreach($this->data  as $column => $val) {
-                $sql .= '`' . $column . '` = ? ,' ;
-                $this->BindData($val);
-
-            // $fields   = implode(',', array_keys($this->data));
-            // $values   = ':' . implode(':,:', array_keys($this->data));
-            // $sql      = "INSERT INTO {$this->tableName} ({$fields}) VALUES ({$values})";
-        }
-        $sql = rtrim($sql, ',');
-        $this->query($sql, $this->bindings);
-        $this->lastID = $this->connection()->lastInsertId();
-        // pre($this->lastID); die;
-        return $this;
-        // echo  $sql."<br/>\n";
-    }
+    
     /**
      * update data to the table
      */
@@ -137,14 +116,124 @@ class Database{
         $this->wheres[] = $sql;
         return  $this;
     }
+    public function join($join){
+        $this->joins[] = $join;
+        return $this;
+    }
+    public function orderBy($orderBy, $sort = 'ASC')
+    {
+        $this->ordersBy = [$orderBy, $sort];
 
-        // $updates = [];
-    /**
-     * @param string|null $field
-     */
+        return $this;
+    }
+
+    public function select($select){
+        // for those who use PHP 5.6
+        // you can use the ... operator
+        // otherwise , use the following line to get all passed arguments
+        // $selects = func_get_args();
+        // $this->selects = array_merge($this->selects, $selects);
+        $this->selects[] = $select;
+        return $this;
+    }
+    public function limit($limit, $offset = 0){
+        $this->limit = $limit;
+        $this->offset = $offset;
+        return $this;
+    }
+      
     public function lastID() {
         return $this->lastID;
     }
+    public function data($key, $value = null)
+    {
+        if (is_array($key)) {
+            // foreach($key as $k=>$v) {
+            //     $this->data[$k] = $v;
+            // }
+            $this->data =  array_merge($this->data, $key);
+            $this->BindData($key);
+        } else {
+            $this->data[$key] = $value;
+            $this->BindData($value);
+        }
+        return $this;
+    }
+    public  function insert($table = null){
+        if ($table) {
+            $this->table($table);
+        }
+        $sql = 'INSERT INTO ' . $this->tableName . ' SET ';
+        $sql .= $this->Setfields();
+        //     foreach($this->data  as $column => $val) {
+        //         $sql .= '`' . $column . '` = ? ,' ;
+        //         $this->BindData($val);
+
+        //     // $fields   = implode(',', array_keys($this->data));
+        //     // $values   = ':' . implode(':,:', array_keys($this->data));
+        //     // $sql      = "INSERT INTO {$this->tableName} ({$fields}) VALUES ({$values})";
+        // }
+        // $sql = rtrim($sql, ',');
+        $this->query($sql, $this->bindings);
+        $this->lastID = $this->connection()->lastInsertId();
+        // pre($this->lastID); die;
+        return $this;
+        // echo  $sql."<br/>\n";
+    }
+    /**
+     * Fetch Table
+     * This will return only one record
+     *
+     * @param string $table
+     * @return \stdClass | null
+     */
+    public function fetch($table = null){
+        if ($table) {
+            $this->table($table);
+        }
+        $sql = $this->fetchStatments();
+        // pre($sql);die;
+       
+        // $sql .= ' FROM ' . $this->table . ' ';
+        // var_dump($sql);die;
+        $stmt = $this->query($sql , $this->bindings);
+        $res = $stmt->fetchAll();
+        return $res;
+    }
+
+
+private function fetchStatments(){
+        $sql = "SELECT ";
+        if ($this->selects) {
+            $sql .= implode(',', $this->selects);
+        } else {
+            $sql .= "*";
+        }
+        $sql .= " FROM " . $this->tableName . " ";
+        if ($this->joins) {
+            $sql  .= implode(" ", $this->joins) . " ";
+        }
+        if ($this->wheres) {
+            $sql .= " WHERE " . implode("  ", $this->wheres) . " ";
+        }
+        if (!empty($this->groupBy)) {
+            $sql .= " GROUP BY " . implode(",",$this->groupBy)." ";
+        }
+        if (!is_null($this->having)) {
+            $sql .= " HAVING ".$this->having." ";
+        }
+        if (!empty($this->ordersBy)) {
+            $sql .= " ORDER BY " . implode(" ", $this->ordersBy) . " ";
+        }
+        if ($this->limit) {
+            $sql .= " LIMIT " . $this->limit;
+        }
+        if ($this->offset) {
+            $sql .= " OFFSET " . $this->offset;
+        }
+        return  $sql;
+}
+
     public function query(){
         $args       = func_get_args();
         $sql        = array_shift($args);
@@ -172,8 +261,8 @@ class Database{
             echo $sql;
 
             pre($this->bindings);
-
-            die($e->getMessage());
+            // die($e->getMessage());
+            throw new PDOException("Database error: " . $e->getMessage());
         // die( 'Database Error:' .$e->getMessage());
         }
 
