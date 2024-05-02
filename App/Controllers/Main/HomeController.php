@@ -33,11 +33,12 @@ class HomeController  extends Controller{
         // pre($this->db->fetchAll('users'));
         // pre($this->db->rowCount());
 
-        $users = $this->load->model( 'users');
+        // Test Model
+        // $users = $this->load->model( 'users');
         // $new = $users->getUserById(1)->created;
         // $new = date('Y-m-d', $new);
         // pre($new);
-        pre($users->all());
+        // pre($users->all());
 
     }
 }
